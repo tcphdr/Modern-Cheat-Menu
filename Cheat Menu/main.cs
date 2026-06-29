@@ -1131,7 +1131,7 @@ namespace Modern_Cheat_Menu
                 // Toggle player movement
                 if (Il2CppScheduleOne.PlayerScripts.PlayerMovement.Instance != null)
                 {
-                    Il2CppScheduleOne.PlayerScripts.PlayerMovement.Instance.canMove = controllable;
+                    Il2CppScheduleOne.PlayerScripts.PlayerMovement.Instance.CanMove = controllable;
                 }
 
                 // Toggle input system
@@ -4102,7 +4102,7 @@ namespace Modern_Cheat_Menu
                 // Toggle player movement
                 if (Il2CppScheduleOne.PlayerScripts.PlayerMovement.Instance != null)
                 {
-                    Il2CppScheduleOne.PlayerScripts.PlayerMovement.Instance.canMove = false;
+                    Il2CppScheduleOne.PlayerScripts.PlayerMovement.Instance.CanMove = false;
                 }
 
                 // Toggle input system
@@ -5403,7 +5403,8 @@ namespace Modern_Cheat_Menu
             try
             {
                 // Create explosion data
-                ExplosionData explosionData = new ExplosionData(radius, damage, radius * 2.0f);
+                //ExplosionData explosionData = new ExplosionData(radius, damage, radius * 2.0f);
+                ExplosionData explosionData = new ExplosionData(radius, damage, radius * 2.0f, false, (EExplosionType)0);
 
                 // Get the CombatManager instance
                 var combatManager = CombatManager.Instance;
@@ -6335,16 +6336,31 @@ namespace Modern_Cheat_Menu
                         debugInfo.AppendLine($"Is Alive: {playerHealth.IsAlive}");
                     }
 
-                    var playerMovement = localPlayer.GetComponent<Il2CppScheduleOne.PlayerScripts.PlayerMovement>();
+                    /*var playerMovement = localPlayer.GetComponent<Il2CppScheduleOne.PlayerScripts.PlayerMovement>();
                     if (playerMovement != null)
                     {
                         debugInfo.AppendLine($"Movement Speed: {PlayerMovement.WalkSpeed}");
                         debugInfo.AppendLine($"Sprint Multiplier: {PlayerMovement.SprintMultiplier}");
-                        debugInfo.AppendLine($"Jump Force: {playerMovement.jumpForce}");
+                        debugInfo.AppendLine($"Jump Force: {playerMovement.JumpForce}");
                         debugInfo.AppendLine($"Gravity Multiplier: {PlayerMovement.GravityMultiplier}");
                         debugInfo.AppendLine($"Is Grounded: {playerMovement.IsGrounded}");
-                        debugInfo.AppendLine($"Is Crouched: {playerMovement.isCrouched}");
-                        debugInfo.AppendLine($"Is Sprinting: {playerMovement.isSprinting}");
+                        debugInfo.AppendLine($"Is Crouched: {playerMovement.IsCrouched}");
+                        debugInfo.AppendLine($"Is Sprinting: {playerMovement.IsSprinting}");
+                        debugInfo.AppendLine($"Current Stamina: {playerMovement.CurrentStaminaReserve}");
+                    }*/
+                    var playerMovement = localPlayer.GetComponent<Il2CppScheduleOne.PlayerScripts.PlayerMovement>();
+                    if (playerMovement != null)
+                    {
+                        // These are static (shared by the whole class), access via the Type name:
+                        debugInfo.AppendLine($"Movement Speed: {Il2CppScheduleOne.PlayerScripts.PlayerMovement.WalkSpeed}");
+                        debugInfo.AppendLine($"Sprint Multiplier: {Il2CppScheduleOne.PlayerScripts.PlayerMovement.SprintMultiplier}");
+                        debugInfo.AppendLine($"Gravity Multiplier: {Il2CppScheduleOne.PlayerScripts.PlayerMovement.GravityMultiplier}");
+
+                        // These are instance properties (specific to this player), keep as is:
+                        debugInfo.AppendLine($"Jump Force: {Il2CppScheduleOne.PlayerScripts.PlayerMovement.JumpForce}");
+                        debugInfo.AppendLine($"Is Grounded: {playerMovement.IsGrounded}");
+                        debugInfo.AppendLine($"Is Crouched: {playerMovement.IsCrouched}");
+                        debugInfo.AppendLine($"Is Sprinting: {playerMovement.IsSprinting}");
                         debugInfo.AppendLine($"Current Stamina: {playerMovement.CurrentStaminaReserve}");
                     }
 

@@ -41,7 +41,7 @@ This mod is **open-source**, built to be both powerful and extendable.
 - Proper game dump (Il2Cpp)
 
 ### Steps:
-1. Download the latest [release](https://github.com/YOUR_USERNAME/YOUR_REPO/releases).
+1. Download the latest [release](https://github.com/tcphdr/modern-cheat-menu/releases).
 2. Place the compiled `ModernCheatMenu.dll` into your game’s `Mods` folder (`<GameDirectory>/Mods/`).
 3. Launch the game and press `F10` to open the cheat menu.
 

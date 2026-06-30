@@ -1,6 +1,6 @@
 # Modern Cheat Menu
 
-**Version**: 2.0.3  
+**Version**: 2.0.4  
 **Author**: darkness  
 **Target Game**: Schedule I (by TVGS)  
 **Mod Loader**: MelonLoader  
@@ -71,8 +71,6 @@ Player-based commands (like targeted exploits) are visible in the player list an
 
 Planned command implementations:
 - `packageproduct`
-- `spawnvehicle`
-- `teleport`
 - `setowned`
 - `setqueststate`
 - `setemotion`

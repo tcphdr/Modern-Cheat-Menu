@@ -1,3 +1,8 @@
+/*
+ * Modern Cheat Menu
+ * GlobalUsings.cs
+ */
+
 global using System;
 global using System.IO;
 global using System.Text;

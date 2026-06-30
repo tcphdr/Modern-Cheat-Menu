@@ -1,3 +1,8 @@
+/*
+ * Modern Cheat Menu
+ * Core.CommandRegistry.cs
+ */
+
 namespace Modern_Cheat_Menu
 {
     public partial class Core

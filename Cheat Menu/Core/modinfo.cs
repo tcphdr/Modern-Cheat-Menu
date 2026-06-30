@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/*
+ * Modern Cheat Menu
+ * modinfo.cs
+ */
 
 namespace Modern_Cheat_Menu
 {
    public static class ModInfo
     {
         public const string Name = "Modern Cheat Menu";
-        public const string Version = "2.0.3";
+        public const string Version = "2.0.4";
         public const string Author = "darkness";
         public const string Description = "An open source mod menu for Schedule I that employs powerful features, leveraging various game mechanics and routines.";
         public const string RepositoryUrl = "https://github.com/tcphdr/modern-cheat-menu";

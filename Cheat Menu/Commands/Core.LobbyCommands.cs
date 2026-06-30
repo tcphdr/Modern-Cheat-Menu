@@ -1,3 +1,8 @@
+/*
+ * Modern Cheat Menu
+ * Core.LobbyCommands.cs
+ */
+
 namespace Modern_Cheat_Menu
 {
     public partial class Core
@@ -551,6 +556,89 @@ namespace Modern_Cheat_Menu
             {
                 LoggerInstance.Error($"Error in TeleportAllPlayersToMe: {ex.Message}");
                 ShowNotification("Error", "Failed to teleport players", NotificationType.Error);
+            }
+        }
+
+        private void TeleportTargetPlayer(Il2CppScheduleOne.PlayerScripts.Player targetPlayer, Vector3 position)
+        {
+            try
+            {
+                if (targetPlayer == null)
+                {
+                    LoggerInstance.Error("Target player is null!");
+                    ShowNotification("Error", "Target player not found", NotificationType.Error);
+                    return;
+                }
+
+                // Ensure position is valid
+                if (float.IsNaN(position.x) || float.IsNaN(position.y) || float.IsNaN(position.z) ||
+                    float.IsInfinity(position.x) || float.IsInfinity(position.y) || float.IsInfinity(position.z))
+                {
+                    LoggerInstance.Error("Invalid teleport position!");
+                    ShowNotification("Error", "Invalid teleport position", NotificationType.Error);
+                    return;
+                }
+
+                // Method 1: Try to get PlayerMovement from target player
+                var playerMovement = targetPlayer.GetComponent<Il2CppScheduleOne.PlayerScripts.PlayerMovement>();
+                if (playerMovement != null)
+                {
+                    // Direct call to the player's Teleport method
+                    LoggerInstance.Msg($"Teleporting {targetPlayer.name} using PlayerMovement.Teleport");
+                    playerMovement.Teleport(position);
+                    ShowNotification("Teleport", $"Teleported {targetPlayer.name} using movement teleport", NotificationType.Success);
+                    return;
+                }
+
+                // Method 2: Try to use teleport fields if available
+                try
+                {
+                    // Set player's teleport flag and position
+                    var teleportField = targetPlayer.GetType().GetField("teleport", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    var teleportPosField = targetPlayer.GetType().GetField("teleportPosition", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                    if (teleportField != null && teleportPosField != null)
+                    {
+                        // Set teleport flag to true
+                        teleportField.SetValue(targetPlayer, true);
+                        // Set teleport position
+                        teleportPosField.SetValue(targetPlayer, position);
+
+                        LoggerInstance.Msg($"Teleporting {targetPlayer.name} using teleport fields");
+                        ShowNotification("Teleport", $"Set teleport flag and position for {targetPlayer.name}", NotificationType.Success);
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LoggerInstance.Error($"Error accessing teleport fields: {ex.Message}");
+                }
+
+                // Method 3: As a last resort, try to directly set transform position
+                LoggerInstance.Msg($"Fallback: Directly setting {targetPlayer.name}'s position");
+                targetPlayer.transform.position = position;
+
+                // Try to force position sync if possible
+                var netObj = targetPlayer.GetComponent<Il2CppFishNet.Object.NetworkObject>();
+                if (netObj != null)
+                {
+                    // Try to call any transform dirty method
+                    var dirtyTransformMethod = netObj.GetType().GetMethods()
+                    .FirstOrDefault(m => m.Name.Contains("Transform") && m.Name.Contains("Dirty"));
+
+                    if (dirtyTransformMethod != null)
+                    {
+                        dirtyTransformMethod.Invoke(netObj, null);
+                        LoggerInstance.Msg("Called transform dirty method");
+                    }
+                }
+
+                ShowNotification("Teleport", $"Direct position set for {targetPlayer.name}", NotificationType.Success);
+            }
+            catch (Exception ex)
+            {
+                LoggerInstance.Error($"Error teleporting target player: {ex.Message}");
+                ShowNotification("Error", "Teleport failed: " + ex.Message, NotificationType.Error);
             }
         }
     }

@@ -1,3 +1,8 @@
+/*
+ * Modern Cheat Menu
+ * Core.Textures.cs
+ */
+
 namespace Modern_Cheat_Menu
 {
     public partial class Core

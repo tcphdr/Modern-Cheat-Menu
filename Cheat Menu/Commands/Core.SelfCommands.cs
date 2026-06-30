@@ -742,5 +742,37 @@ namespace Modern_Cheat_Menu
                 ShowNotification("Error", "Failed to clear wanted level", NotificationType.Error);
             }
         }
+
+
+        private void EndTutorial(string[] args)
+        {
+            try
+            {
+                var command = new Il2CppScheduleOne.Console.EndTutorial();
+                command.Execute(null);
+                ShowNotification("Tutorial", "Tutorial ended", NotificationType.Success);
+            }
+            catch (System.Exception ex)
+            {
+                LoggerInstance.Error($"Error ending tutorial: {ex.Message}");
+                ShowNotification("Error", "Failed to end tutorial", NotificationType.Error);
+            }
+        }
+
+
+        private void ForceGameSave(string[] args)
+        {
+            try
+            {
+                var command = new Il2CppScheduleOne.Console.Save();
+                command.Execute(null);
+                ShowNotification("Game", "Save completed", NotificationType.Success);
+            }
+            catch (System.Exception ex)
+            {
+                LoggerInstance.Error($"Error forcing game save: {ex.Message}");
+                ShowNotification("Error", "Failed to save game", NotificationType.Error);
+            }
+        }
     }
 }

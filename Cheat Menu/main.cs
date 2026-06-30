@@ -48,6 +48,7 @@ using Il2CppFluffyUnderware.Curvy.Generator;
 using Il2CppScheduleOne.DevUtilities;
 using Il2CppFishNet.Component;
 using Il2CppFishNet.Managing;
+
 /*
  * ---------- Commands To Implement ----------
  * setowned, setqueststate, setquestentrystate, setemotion, setunlocked, setrelationship, addemployee
@@ -215,12 +216,12 @@ namespace Modern_Cheat_Menu
 
         // Add dictionary for text fields
         private Dictionary<string, CustomTextField> _textFields = new Dictionary<string, CustomTextField>();
+
         // Categories and commands
         private List<CommandCategory> _categories = new List<CommandCategory>();
         private Dictionary<string, string> _itemDictionary = new Dictionary<string, string>();
         private Dictionary<string, List<string>> _vehicleCache = new Dictionary<string, List<string>>();
         private Dictionary<string, List<string>> _itemCache = new Dictionary<string, List<string>>();
-
         private Dictionary<string, bool> _qualitySupportCache = new Dictionary<string, bool>();
         private Dictionary<string, List<string>> _itemQualityCache = new Dictionary<string, List<string>>();
 
@@ -1407,7 +1408,7 @@ namespace Modern_Cheat_Menu
                 GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
                 GUILayout.Space(40); // Space for header
 
-                // --- Category Tabs ---
+                // Category Tabs
                 GUILayout.BeginHorizontal();
                 try
                 {
@@ -1428,7 +1429,7 @@ namespace Modern_Cheat_Menu
                     GUILayout.EndHorizontal();
                 }
 
-                // --- Content Area ---
+                // Content Area
                 GUILayout.BeginVertical(_panelStyle, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
                 try
                 {
@@ -4706,6 +4707,27 @@ namespace Modern_Cheat_Menu
             }
         }
 
+        private void SetWeather(string[] args)
+        {
+            // args[0] will now hold the string selected in the dropdown
+            string selectedWeather = args[0];
+
+            try
+            {
+                var commandList = new Il2CppSystem.Collections.Generic.List<string>();
+                commandList.Add(selectedWeather);
+
+                var cmd = new Il2CppScheduleOne.Console.SetWeather();
+                cmd.Execute(commandList);
+
+                ShowNotification("Weather", $"Changed to {selectedWeather}", NotificationType.Success);
+            }
+            catch (System.Exception ex)
+            {
+                LoggerInstance.Error($"Error setting weather: {ex.Message}");
+            }
+        }
+
         private void SetPlayerMovementSpeed(string[] args)
         {
             if (args.Length < 1)
@@ -6336,27 +6358,12 @@ namespace Modern_Cheat_Menu
                         debugInfo.AppendLine($"Is Alive: {playerHealth.IsAlive}");
                     }
 
-                    /*var playerMovement = localPlayer.GetComponent<Il2CppScheduleOne.PlayerScripts.PlayerMovement>();
-                    if (playerMovement != null)
-                    {
-                        debugInfo.AppendLine($"Movement Speed: {PlayerMovement.WalkSpeed}");
-                        debugInfo.AppendLine($"Sprint Multiplier: {PlayerMovement.SprintMultiplier}");
-                        debugInfo.AppendLine($"Jump Force: {playerMovement.JumpForce}");
-                        debugInfo.AppendLine($"Gravity Multiplier: {PlayerMovement.GravityMultiplier}");
-                        debugInfo.AppendLine($"Is Grounded: {playerMovement.IsGrounded}");
-                        debugInfo.AppendLine($"Is Crouched: {playerMovement.IsCrouched}");
-                        debugInfo.AppendLine($"Is Sprinting: {playerMovement.IsSprinting}");
-                        debugInfo.AppendLine($"Current Stamina: {playerMovement.CurrentStaminaReserve}");
-                    }*/
                     var playerMovement = localPlayer.GetComponent<Il2CppScheduleOne.PlayerScripts.PlayerMovement>();
                     if (playerMovement != null)
                     {
-                        // These are static (shared by the whole class), access via the Type name:
                         debugInfo.AppendLine($"Movement Speed: {Il2CppScheduleOne.PlayerScripts.PlayerMovement.WalkSpeed}");
                         debugInfo.AppendLine($"Sprint Multiplier: {Il2CppScheduleOne.PlayerScripts.PlayerMovement.SprintMultiplier}");
                         debugInfo.AppendLine($"Gravity Multiplier: {Il2CppScheduleOne.PlayerScripts.PlayerMovement.GravityMultiplier}");
-
-                        // These are instance properties (specific to this player), keep as is:
                         debugInfo.AppendLine($"Jump Force: {Il2CppScheduleOne.PlayerScripts.PlayerMovement.JumpForce}");
                         debugInfo.AppendLine($"Is Grounded: {playerMovement.IsGrounded}");
                         debugInfo.AppendLine($"Is Crouched: {playerMovement.IsCrouched}");
@@ -6364,7 +6371,6 @@ namespace Modern_Cheat_Menu
                         debugInfo.AppendLine($"Current Stamina: {playerMovement.CurrentStaminaReserve}");
                     }
 
-                    // Network object info
                     var netObj = localPlayer.GetComponent<Il2CppFishNet.Object.NetworkObject>();
                     if (netObj != null)
                     {
@@ -7122,7 +7128,8 @@ namespace Modern_Cheat_Menu
                 "bruiser",
                 "dinkler",
                 "hounddog",
-                "cheetah"
+                "cheetah",
+                "hotbox"
             };
 
             _itemCache["predefined_tele_targets"] = new List<string>
@@ -7141,6 +7148,14 @@ namespace Modern_Cheat_Menu
                 "carwash",
                 "pawnshop",
                 "hardwarestore"
+            };
+
+            _itemCache["weather"] = new List<string>
+            {
+                "clear",
+                "heavyrain",
+                "lightrain",
+                "overcast"
             };
 
             LoggerInstance.Msg($"Added {_itemCache["explosion_targets"].Count} explosion targets to item cache.");
@@ -7303,6 +7318,22 @@ namespace Modern_Cheat_Menu
             });
             worldCategory.Commands.Add(new Command
             {
+                Name = "Set Weather",
+                Description = "Changes weather using the cached weather list.",
+                Handler = SetWeather,
+                Parameters = new List<CommandParameter> {
+                    new CommandParameter
+                    {
+                        Name = "Weather",
+                        Placeholder = "Select weather type",
+                        Type = ParameterType.Dropdown,
+                        ItemCacheKey = "weather",
+                        Value = "clear"
+                    }
+                }
+            });
+            worldCategory.Commands.Add(new Command
+            {
                 Name = "Set Time",
                 Description = "Sets the time of day (24-hour format)",
                 Handler = SetWorldTime,
@@ -7354,8 +7385,7 @@ namespace Modern_Cheat_Menu
                         Value = "6"
                     }
                 }
-            });            
-
+            });
 
             /* System category */
             systemCategory.Commands.Add(new Command
@@ -7453,7 +7483,7 @@ namespace Modern_Cheat_Menu
                         Placeholder = "Select vehicle",
                         Type = ParameterType.Dropdown,
                         ItemCacheKey = "vehicle_targets",
-                        Value = "Cheetah"  // Default value
+                        Value = "Cheetah"
                     }
                 }
             });

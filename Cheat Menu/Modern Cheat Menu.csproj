@@ -31,10 +31,9 @@
             <GameDir>/home/arthas/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/Schedule I</GameDir>
         </PropertyGroup>
 
-        <ItemGroup>
-          <Compile Include="main.cs" />
-          <Compile Include="modinfo.cs" />
-        </ItemGroup>
+        <PropertyGroup>
+                <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+        </PropertyGroup>
 
         <ItemGroup>
                 <Reference Include="Il2CppScheduleOne.Core">
@@ -479,10 +478,6 @@
                         <HintPath>$(GameDir)/MelonLoader/net6/Il2CppInterop.Common.dll</HintPath>
                 </Reference>
         </ItemGroup>
-
-        <PropertyGroup>
-                <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-        </PropertyGroup>
 
         <Target Name="PostBuild" AfterTargets="PostBuildEvent">
                 <Exec Condition="$([MSBuild]::IsOSPlatform('Windows'))" Command="copy /Y &quot;$(TargetPath)&quot; &quot;$(GameDir)\Mods\&quot;" />

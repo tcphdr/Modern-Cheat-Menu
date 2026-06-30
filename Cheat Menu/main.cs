@@ -1,54 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Text;
-using System.Reflection;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Threading;
-using Il2CppInterop.Runtime;
-using Il2CppInterop.Runtime.InteropTypes;
-using Il2CppInterop.Runtime.Runtime;
-using MelonLoader;
-using MelonLoader.Utils;
-using MelonLoader.NativeUtils;
-using UnityEngine;
-using Il2CppScheduleOne;
-using Il2CppScheduleOne.ItemFramework;
-using static Il2CppScheduleOne.Console;
-using static Il2CppScheduleOne.GameInput;
-using Il2CppScheduleOne.PlayerScripts;
-using static Il2CppSystem.Net.ServicePointManager;
-using Il2CppScheduleOne.Persistence;
-using System.Text.RegularExpressions;
-using UnityEngine.InputSystem;
-using Il2CppScheduleOne.Persistence.Datas;
-using Il2CppScheduleOne.Product;
-using Il2CppScheduleOne.Combat;
-using Il2CppScheduleOne.Equipping;
-using Il2CppFishNet.Object;
-using Il2CppScheduleOne.AvatarFramework.Equipping;
-using UnityEngine.EventSystems;
-using UnityEngine.UIElements.Internal;
-using Il2CppScheduleOne.Map;
-using Il2CppScheduleOne.PlayerScripts.Health;
-using System.Runtime.InteropServices;
-using Il2CppInterop.Common;
-using Il2CppNewtonsoft.Json;
-using Il2CppNewtonsoft.Json.Linq;
-using Il2CppNewtonsoft.Json.Converters;
-using HarmonyLib;
-using Il2CppFishNet.Transporting;
-using Il2CppFishySteamworks;
-using Il2CppSteamworks;
-using Unity.Collections;
-using UnityEngine.Playables;
-using UnityEngine.UI;
-using Il2CppFluffyUnderware.Curvy.Generator;
-using Il2CppScheduleOne.DevUtilities;
-using Il2CppFishNet.Component;
-using Il2CppFishNet.Managing;
-
+﻿
 /*
  * ---------- Commands To Implement ----------
  * setowned, setqueststate, setquestentrystate, setemotion, setunlocked, setrelationship, addemployee
@@ -209,7 +159,8 @@ namespace Modern_Cheat_Menu
         }
     }
 
-    public class Core : MelonMod
+    //public class Core : MelonMod
+    public partial class Core : MelonMod
     {
         // HarmonyLib initialization.
         private HarmonyLib.Harmony _harmony;
@@ -226,8 +177,6 @@ namespace Modern_Cheat_Menu
         private Dictionary<string, List<string>> _itemQualityCache = new Dictionary<string, List<string>>();
 
         private Il2CppFishySteamworks.Server.ServerSocket _discoveredServerSocket;
-
-        // At the top of your class, add these fields
         private MelonPreferences_Category _keybindCategory;
         private MelonPreferences_Entry<string> _menuToggleKeyEntry;
         private MelonPreferences_Entry<string> _explosionKeyEntry;
@@ -244,13 +193,6 @@ namespace Modern_Cheat_Menu
         private Vector2 _playerScrollPosition = Vector2.zero;
 
         private Vector2 _settingsScrollPosition = Vector2.zero;
-
-        // Player network interaction category
-        public class NetworkPlayerCategory
-        {
-            public string Name { get; set; }
-            public List<Command> Commands { get; set; } = new List<Command>();
-        }
 
         // UI settings
         private bool _uiVisible = false;
@@ -446,49 +388,6 @@ namespace Modern_Cheat_Menu
             return null;
         }
 
-        public enum EQuality
-        {
-            Trash = 0,
-            Poor = 1,
-            Standard = 2,
-            Premium = 3,
-            Heavenly = 4
-        }
-
-        // Helper class for command parameters
-        public class CommandParameter
-        {
-            public string Name { get; set; }
-            public string Placeholder { get; set; }
-            public ParameterType Type { get; set; }
-            public string ItemCacheKey { get; set; }
-            public string Value { get; set; }
-        }
-
-        // Parameter type enum
-        public enum ParameterType
-        {
-            Input,
-            Dropdown
-        }
-
-        // Command class
-        public class Command
-        {
-            public string Name { get; set; }
-            public string Description { get; set; }
-            public System.Action<string[]> Handler { get; set; }
-            public List<CommandParameter> Parameters { get; set; } = new List<CommandParameter>();
-        }
-
-        // Command category class
-        public class CommandCategory
-        {
-            public string Name { get; set; }
-            public List<Command> Commands { get; set; } = new List<Command>();
-        }
-
-
         public override void OnInitializeMelon()
         {
             try
@@ -527,11 +426,7 @@ namespace Modern_Cheat_Menu
             if (sceneName == "Main")
             {
                 LoggerInstance.Msg("Main scene loaded, initializing cheat menu.");
-
-                // Find the server socket
                 _discoveredServerSocket = FindBestServerSocket();
-
-                // Rest of your existing setup...
                 MelonCoroutines.Start(SetupUI());
             }
         }
@@ -553,37 +448,6 @@ namespace Modern_Cheat_Menu
             if (_customSkin != null)
                 _customSkin.hideFlags = HideFlags.HideAndDontSave;
         }
-
-        /*private IEnumerator SetupUI()
-        {
-            yield return new WaitForSeconds(1f);
-
-            try
-            {
-                // Create textures (still safe to do here)
-                CreateTextures();
-
-                // Create button textures
-                CreateButtonTextures();
-
-                // Cache game items
-                CacheGameItems();
-
-                // Subscribe to player death event - add this line
-                SubscribeToPlayerDeathEvent();
-
-                _isInitialized = true;
-
-                // Show notification
-                ShowNotification($"{ModInfo.Name} Loaded", $"Press {CurrentMenuToggleKey} to toggle menu visibility", NotificationType.Success);
-            }
-            catch (Exception ex)
-            {
-                LoggerInstance.Error($"UI SETUP FAILED: {ex}");
-                _isInitialized = false;
-                ShowNotification("Initialization Failed", ex.Message, NotificationType.Error);
-            }
-        }*/
 
         private IEnumerator SetupUI()
         {
@@ -614,45 +478,32 @@ namespace Modern_Cheat_Menu
         {
             try
             {
-                // Background texture
                 _backgroundTexture = new Texture2D(1, 1);
                 _backgroundTexture.SetPixel(0, 0, _backgroundColor);
                 _backgroundTexture.Apply();
-
-                // Panel texture
                 _panelTexture = new Texture2D(1, 1);
                 _panelTexture.SetPixel(0, 0, _panelColor);
                 _panelTexture.Apply();
-
-                // Button textures
                 _buttonNormalTexture = new Texture2D(1, 1);
                 _buttonNormalTexture.SetPixel(0, 0, new Color(0.18f, 0.18f, 0.24f, 0.8f));
                 _buttonNormalTexture.Apply();
-
                 _buttonHoverTexture = new Texture2D(1, 1);
                 _buttonHoverTexture.SetPixel(0, 0, new Color(0.25f, 0.25f, 0.35f, 0.9f));
                 _buttonHoverTexture.Apply();
-
                 _buttonActiveTexture = new Texture2D(1, 1);
                 _buttonActiveTexture.SetPixel(0, 0, new Color(0.3f, 0.3f, 0.4f, 1f));
                 _buttonActiveTexture.Apply();
-
-                // Tab textures
                 _categoryTabTexture = _buttonNormalTexture;
                 _categoryTabActiveTexture = _buttonActiveTexture;
                 _categoryTabActiveTexture = _buttonActiveTexture;
-
                 _settingsIconTexture = new Texture2D(16, 16);
                 Color[] pixels = new Color[16 * 16];
 
-                // Fill with transparent pixels
                 for (int i = 0; i < pixels.Length; i++)
                     pixels[i] = new Color(0, 0, 0, 0);
 
-                // Draw a simple gear icon
                 Color iconColor = new Color(0.9f, 0.9f, 0.9f, 1f);
 
-                // Outer circle
                 for (int y = 0; y < 16; y++)
                 {
                     for (int x = 0; x < 16; x++)
@@ -664,7 +515,6 @@ namespace Modern_Cheat_Menu
                         if (dist > 5 && dist < 7)
                             pixels[y * 16 + x] = iconColor;
 
-                        // Add simple teeth
                         if ((x == 1 || x == 14) && y >= 6 && y <= 9)
                             pixels[y * 16 + x] = iconColor;
                         if ((y == 1 || y == 14) && x >= 6 && x <= 9)
@@ -674,7 +524,6 @@ namespace Modern_Cheat_Menu
                     }
                 }
 
-                // Inner circle
                 for (int y = 6; y <= 9; y++)
                 {
                     for (int x = 6; x <= 9; x++)
@@ -796,7 +645,6 @@ namespace Modern_Cheat_Menu
 
         #region Settings System
 
-        // Add these fields to the existing fields section
         private MelonPreferences_Category _settingsCategory;
         private MelonPreferences_Entry<float> _uiScaleEntry;
         private MelonPreferences_Entry<float> _uiOpacityEntry;
@@ -1293,126 +1141,7 @@ namespace Modern_Cheat_Menu
         }
         
         #region OnGUI and UI Drawing
-        /*public override void OnGUI()
-        {
-            if (!_isInitialized)
-                return;
 
-            // Check if textures/styles need recreation
-            if (_needsTextureRecreation)
-            {
-                CreateTextures();
-                CreateButtonTextures();
-                _needsTextureRecreation = false;
-            }
-
-            if (_needsStyleRecreation)
-            {
-                InitializeStyles();
-                _stylesInitialized = true;
-                _needsStyleRecreation = false;
-            }
-
-            // Draw notifications even when menu is hidden
-            if (_activeNotifications.Count > 0)
-            {
-                DrawNotifications();
-            }
-
-            // Draw "Freecam Enabled" overlay when in freecam mode
-            if (_freeCamEnabled && !_uiVisible)
-            {
-                DrawFreecamOverlay();
-            }
-
-            // Don't process UI when not visible
-            if (!_uiVisible)
-                return;
-
-            if (!_stylesInitialized)
-            {
-                InitializeStyles();
-            }
-
-            // Apply custom GUI skin
-            GUI.skin = _customSkin;
-
-            // Draw menu with fade in and scale animation
-            Color originalColor = GUI.color;
-            GUI.color = new Color(1, 1, 1, _fadeInProgress);
-
-            // Apply UI scale
-            Matrix4x4 originalMatrix = GUI.matrix;
-            if (_uiScale != 1.0f)
-            {
-                Vector2 center = new Vector2(Screen.width / 2, Screen.height / 2);
-                GUI.matrix = Matrix4x4.TRS(
-                    center,
-                    Quaternion.identity,
-                    new Vector3(_uiScale, _uiScale, 1)
-                ) * Matrix4x4.TRS(
-                    -center,
-                    Quaternion.identity,
-                    Vector3.one
-                );
-            }
-
-            // Animation for menu appearance
-            float menuAnim = Mathf.SmoothStep(0, 1, _menuAnimationTime);
-
-            // Ensure initial positioning is smooth
-            if (_windowRect.x <= -_windowRect.width)
-            {
-                _windowRect.x = Mathf.Lerp(-_windowRect.width, 20, menuAnim);
-            }
-
-            // Draw the main window without a title (we'll add our own)
-            _windowRect = GUI.Window(
-                0,
-                _windowRect,
-                DelegateSupport.ConvertDelegate<GUI.WindowFunction>(DrawWindow),
-                "",
-                _windowStyle
-            );
-
-            // Draw tooltip if needed
-            if (_showTooltip && _tooltipTimer > 0.5f)
-            {
-                Vector2 mousePos = Event.current.mousePosition;
-                float tooltipWidth = 250;
-                float tooltipHeight = GUI.skin.box.CalcHeight(new GUIContent(_currentTooltip), tooltipWidth);
-
-                // Adjust position to keep on screen
-                float tooltipX = mousePos.x + 20;
-                if (tooltipX + tooltipWidth > Screen.width)
-                    tooltipX = Screen.width - tooltipWidth - 10;
-
-                float tooltipY = mousePos.y + 20;
-                if (tooltipY + tooltipHeight > Screen.height)
-                    tooltipY = mousePos.y - tooltipHeight - 10;
-
-                Rect tooltipRect = new Rect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
-                GUI.Box(tooltipRect, _currentTooltip, _tooltipStyle ?? GUI.skin.box);
-            }
-
-            // Restore original settings
-            GUI.matrix = originalMatrix;
-            GUI.color = originalColor;
-
-            // Handle escape key to close menu
-            if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
-            {
-                if (_showSettings)
-                {
-                    _showSettings = false;
-                }
-                else
-                {
-                    ToggleUI(false);
-                }
-                Event.current.Use();
-            }
-        }*/
         public override void OnGUI()
         {
             if (!_isInitialized)

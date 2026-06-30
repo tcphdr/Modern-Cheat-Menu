@@ -536,7 +536,25 @@ namespace Modern_Cheat_Menu
             }
         }
 
-        private IEnumerator SetupUI()
+        private void ProtectUIResources()
+        {
+            Texture2D[] textures =
+            {
+                _backgroundTexture, _panelTexture, _buttonNormalTexture, _buttonHoverTexture,
+                _buttonActiveTexture, _toggleOnTexture, _toggleOffTexture, _sliderThumbTexture,
+                _sliderTrackTexture, _inputFieldTexture, _headerTexture, _categoryTabTexture,
+                _categoryTabActiveTexture, _checkmarkTexture, _settingsIconTexture, _closeIconTexture,
+                _glowTexture, _warningTexture, _settingsButtonTexture, _closeButtonTexture
+            };
+            foreach (Texture2D tex in textures)
+                if (tex != null)
+                    tex.hideFlags = HideFlags.HideAndDontSave;
+
+            if (_customSkin != null)
+                _customSkin.hideFlags = HideFlags.HideAndDontSave;
+        }
+
+        /*private IEnumerator SetupUI()
         {
             yield return new WaitForSeconds(1f);
 
@@ -557,6 +575,30 @@ namespace Modern_Cheat_Menu
                 _isInitialized = true;
 
                 // Show notification
+                ShowNotification($"{ModInfo.Name} Loaded", $"Press {CurrentMenuToggleKey} to toggle menu visibility", NotificationType.Success);
+            }
+            catch (Exception ex)
+            {
+                LoggerInstance.Error($"UI SETUP FAILED: {ex}");
+                _isInitialized = false;
+                ShowNotification("Initialization Failed", ex.Message, NotificationType.Error);
+            }
+        }*/
+
+        private IEnumerator SetupUI()
+        {
+            yield return new WaitForSeconds(1f);
+
+            try
+            {
+                CreateTextures();
+                CreateButtonTextures();
+                ProtectUIResources();
+                CacheGameItems();
+                SubscribeToPlayerDeathEvent();
+
+                _isInitialized = true;
+
                 ShowNotification($"{ModInfo.Name} Loaded", $"Press {CurrentMenuToggleKey} to toggle menu visibility", NotificationType.Success);
             }
             catch (Exception ex)
@@ -1251,7 +1293,7 @@ namespace Modern_Cheat_Menu
         }
         
         #region OnGUI and UI Drawing
-        public override void OnGUI()
+        /*public override void OnGUI()
         {
             if (!_isInitialized)
                 return;
@@ -1358,6 +1400,107 @@ namespace Modern_Cheat_Menu
             GUI.color = originalColor;
 
             // Handle escape key to close menu
+            if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
+            {
+                if (_showSettings)
+                {
+                    _showSettings = false;
+                }
+                else
+                {
+                    ToggleUI(false);
+                }
+                Event.current.Use();
+            }
+        }*/
+        public override void OnGUI()
+        {
+            if (!_isInitialized)
+                return;
+
+            if (!_needsTextureRecreation && !_needsStyleRecreation && (_backgroundTexture == null || _customSkin == null))
+            {
+                _needsTextureRecreation = true;
+                _needsStyleRecreation = true;
+            }
+
+            if (_needsTextureRecreation)
+            {
+                CreateTextures();
+                CreateButtonTextures();
+                ProtectUIResources();
+                _needsStyleRecreation = true;
+                _needsTextureRecreation = false;
+            }
+
+            if (_needsStyleRecreation)
+            {
+                InitializeStyles();
+                ProtectUIResources();
+                _stylesInitialized = true;
+                _needsStyleRecreation = false;
+            }
+
+            if (_activeNotifications.Count > 0)
+            {
+                DrawNotifications();
+            }
+
+            if (_freeCamEnabled && !_uiVisible)
+            {
+                DrawFreecamOverlay();
+            }
+
+            if (!_uiVisible)
+                return;
+
+            if (!_stylesInitialized)
+            {
+                InitializeStyles();
+            }
+
+            GUI.skin = _customSkin;
+
+            Color originalColor = GUI.color;
+            GUI.color = new Color(1, 1, 1, _fadeInProgress);
+
+            Matrix4x4 originalMatrix = GUI.matrix;
+            if (_uiScale != 1.0f)
+            {
+                Vector2 center = new Vector2(Screen.width / 2, Screen.height / 2);
+                GUI.matrix = Matrix4x4.TRS(center, Quaternion.identity, new Vector3(_uiScale, _uiScale, 1)) * Matrix4x4.TRS(-center, Quaternion.identity, Vector3.one);
+            }
+
+            float menuAnim = Mathf.SmoothStep(0, 1, _menuAnimationTime);
+
+            if (_windowRect.x <= -_windowRect.width)
+            {
+                _windowRect.x = Mathf.Lerp(-_windowRect.width, 20, menuAnim);
+            }
+
+            _windowRect = GUI.Window(0, _windowRect, DelegateSupport.ConvertDelegate<GUI.WindowFunction>(DrawWindow), "", _windowStyle);
+
+            if (_showTooltip && _tooltipTimer > 0.5f)
+            {
+                Vector2 mousePos = Event.current.mousePosition;
+                float tooltipWidth = 250;
+                float tooltipHeight = GUI.skin.box.CalcHeight(new GUIContent(_currentTooltip), tooltipWidth);
+
+                float tooltipX = mousePos.x + 20;
+                if (tooltipX + tooltipWidth > Screen.width)
+                    tooltipX = Screen.width - tooltipWidth - 10;
+
+                float tooltipY = mousePos.y + 20;
+                if (tooltipY + tooltipHeight > Screen.height)
+                    tooltipY = mousePos.y - tooltipHeight - 10;
+
+                Rect tooltipRect = new Rect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
+                GUI.Box(tooltipRect, _currentTooltip, _tooltipStyle ?? GUI.skin.box);
+            }
+
+            GUI.matrix = originalMatrix;
+            GUI.color = originalColor;
+
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
             {
                 if (_showSettings)
